@@ -13,6 +13,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private var title: String = "Mode List View"
     private var listData: ArrayList<KabKota> = arrayListOf()
+    private var currentViewMode: String = "LIST" // Default mode adalah List
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,11 +21,29 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
-        supportActionBar?.title = title // Set default title
+
+        // Pulihkan mode tampilan dari savedInstanceState
+        currentViewMode = savedInstanceState?.getString("CURRENT_VIEW_MODE") ?: "LIST"
+        title = when (currentViewMode) {
+            "GRID" -> "Mode Grid View"
+            "CARD" -> "Mode Card View"
+            else -> "Mode List View"
+        }
+        supportActionBar?.title = title
 
         listData.addAll(KabKotaData.listDataKabKota)
 
-        showRecyclerList()
+        // Tampilkan mode sesuai dengan status yang disimpan
+        when (currentViewMode) {
+            "GRID" -> showRecyclerGrid()
+            "CARD" -> showRecyclerCardView()
+            else -> showRecyclerList()
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("CURRENT_VIEW_MODE", currentViewMode) // Simpan mode tampilan
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -36,14 +55,17 @@ class MainActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.action_list -> {
                 title = "Mode List View"
+                currentViewMode = "LIST"
                 showRecyclerList()
             }
             R.id.action_grid -> {
                 title = "Mode Grid View"
+                currentViewMode = "GRID"
                 showRecyclerGrid()
             }
             R.id.action_cardview -> {
                 title = "Mode Card View"
+                currentViewMode = "CARD"
                 showRecyclerCardView()
             }
             else -> return super.onOptionsItemSelected(item)
